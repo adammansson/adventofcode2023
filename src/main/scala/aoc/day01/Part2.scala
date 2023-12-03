@@ -15,4 +15,4 @@ def replaceLettersWithDigit(s: String): String =
 		.replaceAll("nine", "nine9nine")
 
 
-@main def part2 = println(PuzzleInput.parse("day01/part1and2").map(s => sumFirstLastDigit(replaceLettersWithDigit(s))).sum)
+@main def part2 = println(PuzzleInput.parse("day01/part1").map(s => sumFirstLastDigit(replaceLettersWithDigit(s))).sum)
