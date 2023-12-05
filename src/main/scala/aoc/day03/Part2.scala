@@ -17,7 +17,6 @@ def findGearRatios(matrix: Vector[Vector[Char]]): Vector[Int] =
 	res.toVector
 
 
-
 @main def part2 =
 	val matrix = PuzzleInput.parse("day03/part1").map(_.toVector)
 
