@@ -3,7 +3,7 @@ package aoc.day04
 import aoc.utils.*
 
 @main def part2 =
-	val cards = Card.parseMany(PuzzleInput.toVector("day04/part1"))
+	val cards = Card.parseMany(PuzzleInput(4, 1, false).toVector)
 	val copies = Array.fill(cards.length)(1)
 
 	for {
