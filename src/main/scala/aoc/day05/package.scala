@@ -10,8 +10,8 @@ case class MapEntry(destinationRangeStart: Long, sourceRangeStart: Long, rangeLe
 case class Seed(start: Long, length: Long)
 
 case class Almanac(seeds: Vector[Seed], maps: Vector[Vector[MapEntry]]):
-	private def convert(mapIndex: Int, i: Long): Long =
-		maps(mapIndex).find(_.contains(i)).map(_.map(i)).getOrElse(i)
+	private def convert(map: Vector[MapEntry], i: Long): Long =
+		map.find(_.contains(i)).map(_.map(i)).getOrElse(i)
 
 	def minimumLocation: Long =
 		var minimumFound = Long.MaxValue
@@ -21,11 +21,11 @@ case class Almanac(seeds: Vector[Seed], maps: Vector[Vector[MapEntry]]):
 			x <- seed.start until seed.start + seed.length
 		} do
 			var source = x
-			var destination = convert(0, x)
+			var destination = convert(maps(0), x)
 
 			for i <- maps.indices.tail do
 				source = destination
-				destination = convert(i, source)
+				destination = convert(maps(1), source)
 
 			if destination < minimumFound then minimumFound = destination
 		minimumFound
