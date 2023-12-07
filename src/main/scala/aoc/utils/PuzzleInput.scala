@@ -1,12 +1,17 @@
+//> using lib "com.softwaremill.sttp.client4::core:4.0.0-M8"
+
 package aoc.utils
 
-import scala.io.Source
+case class PuzzleInput(day: Int):
+	import scala.io.Source
+	import sttp.client4.quick.*
+	import sttp.client4.Response
 
-case class PuzzleInput(day: Int, part: Int, isExample: Boolean):
-	private val file = Source.fromFile(s"input/day0$day/${if isExample then s"example" else s"input"}$part.txt")
+	private val responseBody = quickRequest
+		.cookie("session", Source.fromFile("session.cookie").mkString)
+		.get(uri"https://adventofcode.com/2023/day/$day/input")
+		.send()
+		.body
 
 	def toVector: Vector[String] = 
-		file.getLines.toVector
-
-	override def toString: String =
-		file.toVector.mkString
+		responseBody.split("\n").toVector

@@ -17,7 +17,7 @@ def findPartNumbers(matrix: Vector[Vector[Char]]): Vector[Int] =
 	res.toVector
 
 @main def part1 =
-	val matrix = PuzzleInput(3, 1, false).toVector.map(_.toVector)
+	val matrix = PuzzleInput(3).toVector.map(_.toVector)
 
 	val result = findPartNumbers(matrix)
 	println(result.sum)

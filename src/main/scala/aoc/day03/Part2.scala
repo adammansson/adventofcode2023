@@ -18,7 +18,7 @@ def findGearRatios(matrix: Vector[Vector[Char]]): Vector[Int] =
 
 
 @main def part2 =
-	val matrix = PuzzleInput(3, 1, false).toVector.map(_.toVector)
+	val matrix = PuzzleInput(3).toVector.map(_.toVector)
 
 	val result = findGearRatios(matrix)
 	println(result.sum)
