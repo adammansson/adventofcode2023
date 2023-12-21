@@ -1,6 +1,6 @@
 package aoc.utils
 
-case class PuzzleExample(day: Int, nbr: Int):
+case class PuzzleExample(day: Int, nbr: Int = 1):
 	import scala.io.Source
 
 	private val body = Source.fromFile(s"input/day${if day < 10 then "0" else ""}$day/example$nbr.txt").mkString
