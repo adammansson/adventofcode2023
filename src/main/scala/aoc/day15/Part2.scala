@@ -2,7 +2,6 @@ package aoc.day15
 
 import aoc.utils.* 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable
 
 def focusingPower(boxNbr: Int, slotNbr: Int, focalLength: Int) =
 	(boxNbr + 1) * (slotNbr + 1) * focalLength
