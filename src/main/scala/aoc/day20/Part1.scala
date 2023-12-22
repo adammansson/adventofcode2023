@@ -1,9 +1,6 @@
 package aoc.day20
 
 import aoc.utils.*
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.Queue
 
 enum Pulse:
 	case Low, High
@@ -11,42 +8,39 @@ export Pulse.*
 
 case class PulseEntry(pulse: Pulse, from: String, to: String):
 	override def toString(): String =
-		s"$from -${if pulse == High then "high" else "low"}-> $to"
+		s"$from -${pulse.toString.toLowerCase}-> $to"
 
 sealed trait Module:
 	def name: String
 	def outputs: Vector[String]
-	def process(pulse: Pulse, from: String, queue: Queue[PulseEntry]): Unit
+	def process(pulse: Pulse, from: String): Vector[PulseEntry]
 
 case class FlipFlop(val name: String, val outputs: Vector[String]) extends Module:
 	private var isOff = true
 
-	def process(pulse: Pulse, from: String, queue: Queue[PulseEntry]): Unit = pulse match
+	override def process(pulse: Pulse, from: String): Vector[PulseEntry] = pulse match
 		case Low =>
-			outputs.foreach(out => queue.enqueue(PulseEntry(if isOff then High else Low, name, out)))
 			isOff = !isOff
+			outputs.map(out => PulseEntry(if isOff then Low else High, name, out))
 		case High =>
-			{}
+			Vector()
 
-case class Conjunction(val name: String, val outputs: Vector[String]) extends Module:
-	private val memory = HashMap[String, Pulse]()
+case class Conjunction(val name: String, val outputs: Vector[String], val inputs: Vector[String]) extends Module:
+	private var memory = inputs.map(_ -> Low).toMap
 
-	def addInputs(inputs: Vector[String]): Unit =
-		inputs.foreach(in => memory += in -> Low)
-
-	def process(pulse: Pulse, from: String, queue: Queue[PulseEntry]): Unit =
+	override def process(pulse: Pulse, from: String): Vector[PulseEntry] =
 		memory += from -> pulse
-		outputs.foreach(out => queue.enqueue(PulseEntry(if memory.values.forall(_ == High) then Low else High, name, out)))
+		outputs.map(out => PulseEntry(if memory.values.forall(_ == High) then Low else High, name, out))
 
 case class Broadcaster(name: String, outputs: Vector[String]) extends Module:
-	def process(pulse: Pulse, from: String, queue: Queue[PulseEntry]): Unit =
-		outputs.foreach(out => queue.enqueue(PulseEntry(pulse, name, out)))
+	override def process(pulse: Pulse, from: String): Vector[PulseEntry] =
+		outputs.map(out => PulseEntry(pulse, name, out))
 
 case class Untyped(name: String) extends Module:
 	def outputs: Vector[String] =
 		Vector()
-	def process(pulse: Pulse, from: String, queue: Queue[PulseEntry]): Unit =
-		{}
+	override def process(pulse: Pulse, from: String): Vector[PulseEntry] =
+		Vector()
 
 object Module:
 	def parse(str: String): Option[Module] = str.split(" -> ").toVector match
@@ -58,40 +52,36 @@ object Module:
 			else if nameStr.head == '%' then
 				Some(FlipFlop(nameStr.tail, outputs))
 			else if nameStr.head == '&' then
-				Some(Conjunction(nameStr.tail, outputs))
+				Some(Conjunction(nameStr.tail, outputs, Vector()))
 			else
 				None
 		case _ =>
 			None
 
 @main def part1 =
-	val moduleConfig = PuzzleInput(20).toVector.flatMap(Module.parse)
-	moduleConfig.foreach(_ match
+	val moduleConfigWithoutInputs = PuzzleInput(20).toVector.flatMap(Module.parse)
+	val moduleConfig = moduleConfigWithoutInputs.map(_ match
 		case c: Conjunction =>
-			c.addInputs(moduleConfig.filter(_.outputs.contains(c.name)).map(_.name).toVector)
-		case _ =>
-			{}
+			val inputs = moduleConfigWithoutInputs.filter(_.outputs.contains(c.name)).map(_.name).toVector
+			Conjunction(c.name, c.outputs, inputs)
+		case other =>
+			other
 	)
 
 	var lowPulses = 0
 	var highPulses = 0
 
-	val queue = Queue[PulseEntry]()
-	val history = ArrayBuffer[PulseEntry]()
-
 	for _ <- 0 until 1_000 do
-		queue.enqueue(PulseEntry(Low, "button", "broadcaster"))
+		var queue = Vector(PulseEntry(Low, "button", "broadcaster"))
 
 		while !queue.isEmpty do
-			val entry = queue.dequeue
-			history += entry
-			moduleConfig.find(_.name == entry.to).getOrElse(Untyped(entry.to)).process(entry.pulse, entry.from, queue)
+			val entry = queue.head
+			queue = queue.tail ++ moduleConfig.find(_.name == entry.to).getOrElse(Untyped(entry.to)).process(entry.pulse, entry.from)
 
-		lowPulses += history.count(_.pulse == Low)
-		highPulses += history.count(_.pulse == High)
-
-		queue.clear()
-		history.clear()
+			if entry.pulse == Low then
+				lowPulses += 1
+			else
+				highPulses += 1
 
 	val result = lowPulses * highPulses
 	println(result)
