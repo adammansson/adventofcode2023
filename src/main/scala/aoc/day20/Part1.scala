@@ -2,6 +2,17 @@ package aoc.day20
 
 import aoc.utils.*
 
+def getModuleConfig(input: Vector[String]): Vector[Module] =
+	val moduleConfigWithoutInputs = input.flatMap(Module.parse)
+
+	moduleConfigWithoutInputs.map(_ match
+		case c: Conjunction =>
+			val inputs = moduleConfigWithoutInputs.filter(_.outputs.contains(c.name)).map(_.name).toVector
+			Conjunction(c.name, c.outputs, inputs)
+		case other =>
+			other
+	)
+
 enum Pulse:
 	case Low, High
 export Pulse.*
@@ -59,14 +70,7 @@ object Module:
 			None
 
 @main def part1 =
-	val moduleConfigWithoutInputs = PuzzleInput(20).toVector.flatMap(Module.parse)
-	val moduleConfig = moduleConfigWithoutInputs.map(_ match
-		case c: Conjunction =>
-			val inputs = moduleConfigWithoutInputs.filter(_.outputs.contains(c.name)).map(_.name).toVector
-			Conjunction(c.name, c.outputs, inputs)
-		case other =>
-			other
-	)
+	val moduleConfig = getModuleConfig(PuzzleInput(20).toVector)
 
 	var lowPulses = 0
 	var highPulses = 0
@@ -85,3 +89,27 @@ object Module:
 
 	val result = lowPulses * highPulses
 	println(result)
+
+/*
+@main def part2 =
+	val moduleConfig = getModuleConfig(PuzzleInput(20).toVector)
+
+	var found = false
+	var pressCounter = 0
+
+	while !found do
+		var queue = Vector(PulseEntry(Low, "button", "broadcaster"))
+		pressCounter += 1
+
+		while !queue.isEmpty do
+			val entry = queue.head
+			queue = queue.tail ++ moduleConfig.find(_.name == entry.to).getOrElse(Untyped(entry.to)).process(entry.pulse, entry.from)
+
+			if entry.to == "rx" && entry.pulse == Low then
+				found = true
+
+		if pressCounter % 1_000_000 == 0 then
+			println(pressCounter)
+				
+	println(s"Pulse found after $pressCounter presses")
+*/
