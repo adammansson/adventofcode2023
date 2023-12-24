@@ -1,18 +1,14 @@
 package aoc.day01
 
 import aoc.utils.*
+import cats.effect._
+import cats.syntax.all._
 
-def replaceLettersWithDigit(s: String): String =
-	s
-		.replaceAll("one", "one1one")
-		.replaceAll("two", "two2two")
-		.replaceAll("three", "three3three")
-		.replaceAll("four", "four4four")
-		.replaceAll("five", "five5five")
-		.replaceAll("six", "six6six")
-		.replaceAll("seven", "seven7seven")
-		.replaceAll("eight", "eight8eight")
-		.replaceAll("nine", "nine9nine")
-
-
-@main def part2 = println(PuzzleInput(1).toVector.map(s => sumFirstLastDigit(replaceLettersWithDigit(s))).sum)
+object Part2 extends IOApp.Simple:
+	def run: IO[Unit] =
+		for {
+			example <- getExample(1, 2)
+			_ <- IO.println(sumOfCalibrationValues(example, false))
+			input <- getInput(1)
+			_ <- IO.println(sumOfCalibrationValues(input, false))
+		} yield ()
