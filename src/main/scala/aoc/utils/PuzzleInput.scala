@@ -1,5 +1,3 @@
-//> using lib "com.softwaremill.sttp.client4::core:4.0.0-M8"
-
 package aoc.utils
 
 case class PuzzleInput(day: Int):

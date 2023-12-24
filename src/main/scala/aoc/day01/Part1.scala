@@ -1,5 +1,12 @@
 package aoc.day01
 
 import aoc.utils.*
+import cats.effect._
+import cats.syntax.all._
 
-@main def part1 = println(PuzzleInput(day = 1).toVector.map(sumFirstLastDigit(_)).sum)
+object Part1 extends IOApp.Simple:
+	def run: IO[Unit] =
+		for {
+			input <- getInput(1)
+			_ <- IO.println(input.map(sumFirstLastDigit(_)).sum)
+		} yield ()
